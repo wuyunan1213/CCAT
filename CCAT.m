@@ -31,9 +31,15 @@ debugRect = [10,10, 800,800];
 [window, windowRect] = Screen('OpenWindow', screenNumber, grey, debugRect);
 [screenXpixels, screenYpixels] = Screen('WindowSize', window);
 [xCenter, yCenter] = RectCenter(windowRect);
-picName1 = 'pic1.jpg';
-theImage1 = imread(picName1);
-imageTexture1 = Screen('MakeTexture', window, theImage1);
+
+%%%there are total of 12 pictures so we will loop through pic1 to pic12
+imageTexture = [];
+n = randperm(nPics);
+for i = 1:nPics
+    picName = ['pic',int2str(n(i)),'.jpg']
+    theImage = imread(picName);
+    imageTexture = [imageTexture, Screen('MakeTexture', window, theImage)];
+end
 % Linearly interpolate the x and y positions based on the current screen
 % size
 yPos = linspace(screenYpixels * 0.2, screenYpixels * 0.8, 3);
@@ -54,11 +60,22 @@ for i = 1:4
 end
 
 % Batch Draw all of the texures to screen
-Screen('DrawTextures', window,imageTexture1,[], dstRects);
+Screen('DrawTextures', window,imageTexture,[], dstRects);
 
 % Flip to the screen
 Screen('Flip', window);
 
+
+%get user response
+[clicks,x,y,whichButton]=GetClicks(win,0);
+while ~((((x>=scrX-575)&&(x<=scrX-75))&&((y>=scrY-250)&&(y<=scrY+250)))||(((x>=scrX+75)&&(x<=scrX+575))&&((y>=scrY-250)&&(y<=scrY+250))))
+    [clicks,x,y,whichButton]=GetClicks(win,0);
+end
+
+%find which image was selected based on the absolute value of the distances
+absDist = abs(dstRects(1, :) - x + dstRects(2, :) - y);
+selectedIndex = find(absDist == min(absDist));
+n(selectedIndex); %%This is the picture that was selected
 
 Screen('CloseAll');
 
