@@ -86,7 +86,7 @@ end
 absDist = abs(dstRects(1, :) - x) + abs(dstRects(2, :) - y);
 selectedIndex = find(absDist == min(absDist))
 n(selectedIndex); %%This is the picture that was selected
-%%add more changes
+%%add a little more changes
 Screen('CloseAll');
 
 
