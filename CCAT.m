@@ -36,7 +36,7 @@ debugRect = [10,10, 800,800];
 imageTexture = [];
 n = randperm(nPics);
 for i = 1:nPics
-    picName = ['pic',int2str(n(i)),'.jpg']
+    picName = ['pic',int2str(n(i)),'.jpg'];
     theImage = imread(picName);
     imageTexture = [imageTexture, Screen('MakeTexture', window, theImage)];
 end
@@ -67,14 +67,24 @@ Screen('Flip', window);
 
 
 %get user response
-[clicks,x,y,whichButton]=GetClicks(win,0);
-while ~((((x>=scrX-575)&&(x<=scrX-75))&&((y>=scrY-250)&&(y<=scrY+250)))||(((x>=scrX+75)&&(x<=scrX+575))&&((y>=scrY-250)&&(y<=scrY+250))))
-    [clicks,x,y,whichButton]=GetClicks(win,0);
+[clicks,x,y,whichButton]=GetClicks(window,0);
+%as long as the x value is within the frames of pic 1,4,7,10 and y value is
+%withn the frames of 1,2,3, then we save these x, y coordinates.
+while ~(((x>=dstRects(1, 1)&&x<=dstRects(3, 1))||...
+       (x>=dstRects(1, 4)&&x<=dstRects(3, 4))||...
+       (x>=dstRects(1, 7)&&x<=dstRects(3, 7))||...
+       (x>=dstRects(1, 10)&&x<=dstRects(3, 10)))&&...
+       ((y>=dstRects(1, 2)&&y<=dstRects(1, 4))||...
+       (y>=dstRects(2, 2)&&y<=dstRects(4, 2))||...
+       (y>=dstRects(2, 3)&&y<=dstRects(4, 3))))
+       
+    [clicks,x,y,whichButton]=GetClicks(window,0);
 end
 
+%recording subjects' response
 %find which image was selected based on the absolute value of the distances
-absDist = abs(dstRects(1, :) - x + dstRects(2, :) - y);
-selectedIndex = find(absDist == min(absDist));
+absDist = abs(dstRects(1, :) - x) + abs(dstRects(2, :) - y);
+selectedIndex = find(absDist == min(absDist))
 n(selectedIndex); %%This is the picture that was selected
 
 Screen('CloseAll');
