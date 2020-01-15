@@ -23,7 +23,6 @@ black = BlackIndex(screenNumber);
 grey = white / 2;
 
 %%%all experiment perimeters
-nPics = 12;
 
 Screen('Preference', 'SyncTestSettings', 0.001);
 % Open an on screen window using PsychImaging and color it grey.
@@ -34,9 +33,12 @@ debugRect = [10,10, 800,800];
 
 %%%there are total of 12 pictures so we will loop through pic1 to pic12
 imageTexture = [];
-n = randperm(nPics);
+picNames = {'cattle', 'sheep', 'kettle', 'flower', 'burger', 'cash', 'bag',...
+            'bed', 'shepard', 'shadow', 'house', 'keg'};
+nPics = numel(picNames);
+picNames_shuffled = picNames(randperm(nPics));
 for i = 1:nPics
-    picName = ['pic',int2str(n(i)),'.jpg'];
+    picName = [picNames_shuffled{i},'.jpg'];
     theImage = imread(picName);
     imageTexture = [imageTexture, Screen('MakeTexture', window, theImage)];
 end
@@ -85,7 +87,7 @@ end
 %find which image was selected based on the absolute value of the distances
 absDist = abs(dstRects(1, :) - x) + abs(dstRects(2, :) - y);
 selectedIndex = find(absDist == min(absDist))
-n(selectedIndex); %%This is the picture that was selected
+picNames_shuffled{selectedIndex}; %%This is the picture that was selected
 
 %%%highlight the selected image
 colorMod = repmat(255,3,12);
