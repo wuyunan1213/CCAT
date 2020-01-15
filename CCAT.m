@@ -86,6 +86,15 @@ end
 absDist = abs(dstRects(1, :) - x) + abs(dstRects(2, :) - y);
 selectedIndex = find(absDist == min(absDist))
 n(selectedIndex); %%This is the picture that was selected
+
+%%%highlight the selected image
+colorMod = repmat(255,3,12);
+colorMod(:, selectedIndex) = repmat(100,3,1); 
+Screen('DrawTextures', window,imageTexture,[], dstRects, [],[],[],colorMod);
+% Flip to the screen
+Screen('Flip', window);
+
+
 %%test changes
 Screen('CloseAll');
 
