@@ -1,0 +1,22 @@
+###################################Step1#####################################
+#############################################################################
+This document describes the steps for creating the vowel grid used in the experiment.
+ 
+First of all, I take the SET and SAT from the original recordings. I listened to them and selected two representative long SET and SAT sounds and label them as set_L and sat_L in the VOWELS folder.
+
+###################################Step2#####################################
+#############################################################################
+Extract the vowels. Take a close look at the wav files and identify where the vowels are in this file. Select the start and end of vowels in the file and make sure you move selection to the nearest zero-crossing. Save these vowels as EH.wav and AE.wav, respectively in the folder and write down the vowel duration that you want to manipulate in terms of the timestamp and save it in file DurationManipulationInformation.txt
+
+
+###################################Step3#####################################
+#############################################################################
+Then, for vowel manipulation. I used a different method than Ran’s way of filtering the source with the extracted formants. Instead, I used an automatic method from Matt Winn’s website. The Praat scripts are included in the VOWEL folder in this step. 
+
+First, 
+
+Next, read in the sound files set_L and sat_L in praat and open the praat script MakeSpecPraat. Note that these two sounds are the vowels with exaggerated duration. 
+
+All of the default settings in the script have been modified so you wouldn’t have to change anything. Note that all of the subsequent information you need for selection is stored in the file. Just click ok—>Select sat_L as the master sound—>select set_L as the reference sound—>select the start of the segment to manipulate, which is the beginning of the AE vowel—>select the end, which is the end of the vowel—>select the start of the vowel at the reference sound, which is EH—>select the end of EH—>select the S in SAT_4 as precursor, and select the start and beginning of S—>select the T in SAT_4 as postcursor and get start and end of T. Note that the end of the precursor should match the start of the manipulated segment in SAT_4 (copy that value into the select button) and the start of the postcursor should match the end of the manipulated segment. —>no need to change the pitch—>No need to change the formant track—>save the formant trajectory plot as “FormantInterpolated.pdf”—>save the praat info as “ManipulationInfo.txt”—>save the sounds step_N as specN. Note that you might have to change the number such that low spec is SET and high spec is SAT. Please make sure this is the case so that it’s consistent with previous studies.
+
+Finally, use these seven manipulated spec series to create the full grid using the MakeDurPraat script. All the parameters are already prespecified so you wouldn’t need to change anything. Read in all 7 sounds—>open MakeDurPraat—>select the start and end of the segment to be manipulated, this information is in the file DUrationManipulationInfo.txt. Run the file and get all 49 stimuli and save them in the folder FinalGrid. Make some changes
