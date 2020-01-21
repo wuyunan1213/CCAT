@@ -31,9 +31,8 @@ debugRect = [10,10, 800,800];
 [screenXpixels, screenYpixels] = Screen('WindowSize', window);
 [xCenter, yCenter] = RectCenter(windowRect);
 
-[audio,fs] = audioread('dur7_vowel_Step_1.wav')
-
-pamaster = PsychPortAudio('Open', 1,1,1,fs,2);
+%%%ITI
+waitTime = 3;
 
 %%load the master file(s)
 %%load('something.mat')
@@ -49,10 +48,37 @@ pamaster = PsychPortAudio('Open', 1,1,1,fs,2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%for F = 1:12
+curText = ['<color=ffffff>In this experiment, you will hear instructions '...
+    'that ask you to click on certain pictures\n\n'...
+    'Please click on the appropriate picture and do so as fast as you can \n\n'...
+    'To start with, we will show you all the pictures and their names'];
+DrawFormattedText2(curText,'win',window,'sx',screenXpixels * 0.2,'sy', screenYpixels * 0.25,'xalign','left','yalign','top','wrapat',59);
+%DrawFormattedText(win, curText, 'center', 'center', white);
+Screen('Flip',window);
+WaitSecs(10);
+%%%there are total of 12 pictures so we will loop through pic1 to pic12
+imageTexture = [];
+picNames = {'cattle', 'sheep', 'kettle', 'flower', 'burger', 'cash', 'bag',...
+            'bed', 'shepard', 'shadow', 'house', 'keg'};
+fXPos = screenXpixels * 0.4;
+fYPos = screenYpixels * 0.4;
+length = 500;
+width = 500;
+fRects = [fXPos, fYPos, length, width];
+
+for F = 1:3
     %%present each picture paired with their name in reading. 
+    curText = [picNames{F}];
+    DrawFormattedText2(curText,'win',window,'sx',screenXpixels * 0.5,'sy', screenYpixels * 0.25,'xalign','left','yalign','top','wrapat',59);
+
+    picName = [picNames{F},'.jpg'];
+    theImage = imread(picName);
+    image = Screen('MakeTexture', window, theImage);
     
-%end
+    Screen('DrawTexture', window, image,[], fRects);
+    Screen('Flip', window);
+    WaitSecs(waitTime);
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -63,14 +89,30 @@ pamaster = PsychPortAudio('Open', 1,1,1,fs,2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%there are total of 12 pictures so we will loop through pic1 to pic12
-imageTexture = [];
-picNames = {'cattle', 'sheep', 'kettle', 'flower', 'burger', 'cash', 'bag',...
-            'bed', 'shepard', 'shadow', 'house', 'keg'};
 %%number of pictures
+curText = ['<color=ffffff>Block 2 \n\n'...
+    'Please click on the appropriate pictures '...
+    'as fast as you can '];
+DrawFormattedText2(curText,'win',window,'sx',screenXpixels * 0.2,'sy', screenYpixels * 0.25,'xalign','left','yalign','top','wrapat',59);
+%DrawFormattedText(win, curText, 'center', 'center', white);
+Screen('Flip',window);
+WaitSecs(4);
+
+curText = ['<color=ffffff>Trial 1 \n\n'];
+DrawFormattedText2(curText,'win',window,'sx',screenXpixels * 0.2,'sy', screenYpixels * 0.25,'xalign','left','yalign','top','wrapat',59);
+%DrawFormattedText(win, curText, 'center', 'center', white);
+Screen('Flip',window);
+
+[screenXpixels, screenYpixels] = Screen('WindowSize', window);
+[screenXpixels, screenYpixels] = Screen('WindowSize', window);
+[xCenter, yCenter] = RectCenter(windowRect);
+
 nPics = numel(picNames);
-%%ITI, intertrial interval
-waitTime = 3;
+
+[audio,fs] = audioread('dur7_vowel_Step_1.wav');
+
+devices = PsychPortAudio('GetDevices');
+pamaster = PsychPortAudio('Open',devices(4).DeviceIndex,1,1,fs,2);
 %%%trial level presentation
 %for t = 1:nTrials
     
