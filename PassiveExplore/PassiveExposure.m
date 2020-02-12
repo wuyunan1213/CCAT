@@ -33,20 +33,26 @@ screenNumber = 0;
 % in general luminace values are defined between 0 and 1 with 255 steps in
 % between. All values in Psychtoolbox are defined between 0 and 1
 white = 255;
+screenNumber = max(screens);
 black = BlackIndex(screenNumber);
+white = WhiteIndex(screenNumber);
+
 
 % Do a simply calculation to calculate the luminance value for grey. This
 % will be half the luminace values for white
 grey = white / 2;
 
 %%%all experiment perimeters
-
+Screen('Preference','DefaultFontSize',40);
+Screen('Preference','VisualDebugLevel',1);
+Screen('Preference', 'TextAntiAliasing', 2);
+Screen('Preference', 'TextRenderer', 1);
 Screen('Preference', 'SyncTestSettings', 0.001);
 % Open an on screen window using PsychImaging and color it grey.
 debugRect = [10,10, 800,800];
-[window, windowRect] = Screen('OpenWindow', screenNumber, grey, debugRect);
-[screenXpixels, screenYpixels] = Screen('WindowSize', window);
-[xCenter, yCenter] = RectCenter(windowRect);
+[win, winRect] = Screen('OpenWindow', screenNumber, grey, debugRect);
+[screenXpixels, screenYpixels] = Screen('WindowSize', win);
+[xCenter, yCenter] = RectCenter(winRect);
 
 dI = 2; %%list the audio device to be used
 repNumber = 4; %%the baseline block should be repeated 4 times
@@ -82,32 +88,6 @@ fprintf('Done.\n')
 %%column names of the stimfiles: 
 %%1.sound file 2. VOT value 3. F0 value 4. VOT level 5. F0 level. 6. block
 %%7.stimulus type 8. audio
-
-%Step Three: Launch PsychToolbox; display instructions
-screens = Screen('Screens');
-screenNumber = max(screens);
-black = BlackIndex(screenNumber);
-white = WhiteIndex(screenNumber);
-grey = white / 2;
-Screen('Preference','DefaultFontSize',40);
-Screen('Preference','VisualDebugLevel',1);
-Screen('Preference', 'TextAntiAliasing', 2);
-Screen('Preference', 'TextRenderer', 1);
-Screen('Preference','SyncTestSettings', 0.002);
-%%auditory
-[win,winRect] = Screen('OpenWindow',screenNumber,black);
-[width,height] = Screen('WindowSize',screenNumber);
-Screen('TextFont', win, 'Helvetica');
-Screen('BlendFunction', win, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-responseKeyIdx = KbName('space');
-enabledkeys = RestrictKeysForKbCheck(responseKeyIdx);
-
-%%%step four, present the baseline block first. This is done while the
-%%%participant is being capped. Only one block omitted for now
-
-Screen('TextFont', win, 'Helvetica');
-Screen('BlendFunction', win, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 responseKeyIdx = KbName('space');
 enabledkeys = RestrictKeysForKbCheck(responseKeyIdx);
