@@ -109,10 +109,10 @@ Screen('Flip',window);
 
 nPics = numel(picNames);
 
-[audio,fs] = audioread('dur7_vowel_Step_1.wav');
+[audio,fs] = audioread('ClickOnTheCattle.wav');
 
 devices = PsychPortAudio('GetDevices');
-pamaster = PsychPortAudio('Open',devices(4).DeviceIndex,1,1,fs,2);
+pamaster = PsychPortAudio('Open',devices(2).DeviceIndex,1,1,fs,2);
 %%%trial level presentation
 %for t = 1:nTrials
     
