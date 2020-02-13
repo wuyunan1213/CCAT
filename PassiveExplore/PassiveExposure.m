@@ -95,7 +95,7 @@ responseKeyIdx = KbName('space');
 z = KbName('z');
 m = KbName('m');
 
-enabledkeys = RestrictKeysForKbCheck(responseKeyIdx);
+enabledkeys = RestrictKeysForKbCheck([responseKeyIdx,z,m]);
 
 %% STIMULUS PRESENTATION FOR BASELINE BLOCKS DURING EEG CAPING
 curText = ['<color=ffffff>In this experiment, you will hear either the word '...
