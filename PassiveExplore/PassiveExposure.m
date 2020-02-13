@@ -43,26 +43,28 @@ white = WhiteIndex(screenNumber);
 grey = white / 2;
 
 %%%all experiment perimeters
-Screen('Preference','DefaultFontSize',40);
-Screen('Preference','VisualDebugLevel',1);
-Screen('Preference', 'TextAntiAliasing', 2);
-Screen('Preference', 'TextRenderer', 1);
+
 Screen('Preference', 'SyncTestSettings', 0.001);
 % Open an on screen window using PsychImaging and color it grey.
-debugRect = [10,10, 800,800];
+
+oX=0;
+oY=0;
+eX=600;
+eY=600;
+
+debugRect = [oX, oY, eX, eY];
 [win, winRect] = Screen('OpenWindow', screenNumber, grey, debugRect);
 [screenXpixels, screenYpixels] = Screen('WindowSize', win);
-[xCenter, yCenter] = RectCenter(winRect);
+[scrX,scrY] = RectCenter(winRect);
 
 dI = 2; %%list the audio device to be used
-repNumber = 4; %%the baseline block should be repeated 4 times
-blockNumber = 2;%%change the block n  umber in the actual experiment, 
-                %%which is the canonical/reverse part. The number should 
-                %%always be even
-                
-trialNumber = 30;%%Number of trials within a block, should always be 36
+repNumber = 5; %%the baseline block should be repeated 4 times
+blockNumber = 2;%change to 20 eventually number of exposure+test blocks in the actual experiment, 
+                %%which is the canonical/reverse part. 
+trialNumber = 30;%%Number of trials within an exposure block, should always be 30
                  %%%for this experiment
 
+fs = 44100;
 % Step One: Connect to and properly initialize RME sound card
 devices = PsychPortAudio('GetDevices');
 pamaster = PsychPortAudio('Open',devices(dI).DeviceIndex,1,1,fs,2);
@@ -90,6 +92,9 @@ fprintf('Done.\n')
 %%7.stimulus type 8. audio
 
 responseKeyIdx = KbName('space');
+z = KbName('z');
+m = KbName('m');
+
 enabledkeys = RestrictKeysForKbCheck(responseKeyIdx);
 
 %% STIMULUS PRESENTATION FOR BASELINE BLOCKS DURING EEG CAPING
@@ -105,11 +110,11 @@ curText = ['<color=ffffff>In this experiment, you will hear either the word '...
     'There is only one block in this part \n\n'...
     '<b>Press "spacebar" to begin.<b>'];
 %curText = 'In this experiment, you will hear either the word "BEER" or the word "PIER" \n\n\n\n If you hear "BEER", click the box labelled "BEER". \n\n If you hear "PIER" click the box labelled "PIER". \n\n If you are unsure, make your best guess.\n\n\n\n Every once in a while, you can take a break \n\n and we will show you a short cartoon with the same sounds in the background. \n\n You just need to watch the cartoon and relax and ignore the sounds. \n\n\n\n Press SPACEBAR to begin';
-DrawFormattedText2(curText,'win',win,'sx',400,'sy',400,'xalign','left','yalign','top','wrapat',59);
+DrawFormattedText2(curText,'win',win,'sx',eX/10,'sy',eY/8,'xalign','left','yalign','top','wrapat',200);
 %DrawFormattedText(win, curText, 'center', 'center', white);
 Screen('Flip',win);
 oldtype = ShowCursor(0);
-KbWait([],2);
+%KbWait([],2);
 
 baselineTN = 25*repNumber;
 
@@ -127,9 +132,8 @@ end
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for j=1:baselineTN %change the trial number
     %Flip Screen to be Beer Pier blocks
-    [scrX,scrY] = RectCenter(winRect);
-    rect1 = CenterRectOnPoint([0 0 500 500],scrX-325,scrY);
-    rect2 = CenterRectOnPoint([0 0 500 500],scrX+325,scrY);   
+    rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
+    rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2);   
     Screen('FillRect', win, [135 206 250], rect1);
     Screen('FillRect', win, [135 206 250], rect2);
     curText='Beer                                                     Pier';
@@ -141,27 +145,23 @@ for j=1:baselineTN %change the trial number
     BPCWresp(j,1:7)=BPCWmaster_baseline.Stimuli(presentation(j),1:7);
 
     signaltwo=[signal,signal];
-
-    pageno = playrec('play',signaltwo,stimchanList);
-    playrec('block',pageno);
+    
+    PsychPortAudio('FillBuffer', pamaster, signaltwo);
+    PsychPortAudio('Start', pamaster, 1, 0, 1);
+    PsychPortAudio('Stop', pamaster, 1, 1);
     %PsychPortAudio('FillBuffer', pamaster, signaltwo);
     %t1 = PsychPortAudio('Start', pamaster, 1, 0, 1);
     %PsychPortAudio('Stop', pamaster , 1, 1);
-
-    %get user response
-    [clicks,x,y,whichButton]=GetClicks(win,0);
-    while ~((((x>=scrX-575)&&(x<=scrX-75))&&((y>=scrY-250)&&(y<=scrY+250)))||(((x>=scrX+75)&&(x<=scrX+575))&&((y>=scrY-250)&&(y<=scrY+250))))
-        [clicks,x,y,whichButton]=GetClicks(win,0);
-    end
+    
     %record user response (in correct location)
-    if (((x>=scrX-575)&&(x<=scrX-75))&&((y>=scrY-250)&&(y<=scrY+250))) %clicked "beer"
+    [keyIsDown,secs, keyCode] = KbCheck;
+    if keyCode(z) %selected 'beer'
         BPCWresp{j,8}='beer'; 
-        %LOOK LATER
 
         %Flip Screen to be Beer Pier blocks
         [scrX,scrY] = RectCenter(winRect);
-        rect1 = CenterRectOnPoint([0 0 500 500],scrX-325,scrY);
-        rect2 = CenterRectOnPoint([0 0 500 500],scrX+325,scrY);
+        rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
+        rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
         Screen('FillRect', win, [255 255 204], rect1);
         Screen('FillRect', win, [135 206 250], rect2);
         curText='Beer                                                     Pier';
@@ -170,14 +170,14 @@ for j=1:baselineTN %change the trial number
 
         WaitSecs(1);
 
-    else %clicked "pier"
+    elseif keyCode(m) %clicked "pier"
         BPCWresp{j,8}='pier';
         %LOOK LATER
 
         %Flip Screen to be Beer Pier blocks
         [scrX,scrY] = RectCenter(winRect);
-        rect1 = CenterRectOnPoint([0 0 500 500],scrX-325,scrY);
-        rect2 = CenterRectOnPoint([0 0 500 500],scrX+325,scrY);
+        rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
+        rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
         Screen('FillRect', win, [135 206 250], rect1);
         Screen('FillRect', win, [255 255 204], rect2);
         curText='Beer                                                     Pier';
@@ -187,6 +187,7 @@ for j=1:baselineTN %change the trial number
         WaitSecs(1);
     end
 end
+
 
 
 stimchanList=[1,2];%%%change the stimulus channels to 
@@ -231,7 +232,7 @@ for i=1:blockNumber %%change the block number
     DrawFormattedText(win,curText,'center','center',[255 255 255]);
     Screen('Flip',win);
     KbWait([],2);
-    %%%Training block(canonical/reverse)
+    %%%exposure block(canonical/reverse)
     for j=1:trialNumber %change the trial number
 
         %Flip Screen to be Beer Pier blocks
@@ -246,10 +247,8 @@ for i=1:blockNumber %%change the block number
 %           instead of presenting instructions, we want to play a movie
 %           here. 
 
-
-       
         %%%concatenate all 3 channels of signals
-        signalthree=[scale*stim{8},scale*stim{8},trig];
+        signalthree=[stim{8},stim{8}];
         
         pageno = playrec('play',signalthree,stimchanList);
         playrec('block',pageno);
@@ -259,7 +258,7 @@ for i=1:blockNumber %%change the block number
 
 
             % Select screen for display of movie:
-        moviename = ['C:\Users\Lab User\Desktop\Experiments\Charles\EEG\Movies\Movie_', int2str(i),'.MP4' ];
+        moviename = ['C:\Users\Lab User\Desktop\Experiments\Charles\EEG\crunch\clip', int2str(i),'.mp4' ];
         screenid = max(Screen('Screens'));
         % Open 'windowrect' sized window on screen, with black [0] background color:
         screen=max(Screen('Screens'));
@@ -406,6 +405,6 @@ writetable(BPCWresp,fnamecsv);
 
 % Disconnect RME
 fprintf('Disconnecting PsychPortAudio...\n')
-playrec('reset');
-%PsychPortAudio('Close')
+%playrec('reset');
+PsychPortAudio('Close')
 fprintf('Playrec successfully disconnected. Goodbye!\n')
