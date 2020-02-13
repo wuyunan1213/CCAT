@@ -144,7 +144,7 @@ for j=1:baselineTN %change the trial number
 
     BPCWresp(j,1:7)=BPCWmaster_baseline.Stimuli(presentation(j),1:7);
 
-    signaltwo=[signal,signal];
+    signaltwo=[signal';signal'];
     
     PsychPortAudio('FillBuffer', pamaster, signaltwo);
     PsychPortAudio('Start', pamaster, 1, 0, 1);
