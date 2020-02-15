@@ -188,8 +188,6 @@ for j=1:baselineTN %change the trial number
     end
    Screen('Flip',win);
    WaitSecs(1);
-    
-    
 end
 
 
