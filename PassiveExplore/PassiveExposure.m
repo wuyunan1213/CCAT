@@ -168,7 +168,6 @@ for j=1:baselineTN %change the trial number
                 DrawFormattedText(win,curText,'center','center',[0 0 0]);
 
                 respToBeMade = false;
-                WaitSecs(1);
 
         elseif keyCode(m) %clicked "pier"
                 BPCWresp{j,8}='pier';
@@ -184,14 +183,14 @@ for j=1:baselineTN %change the trial number
                 DrawFormattedText(win,curText,'center','center',[0 0 0]);
 
                 respToBeMade = false;
-                WaitSecs(1);
         end
-       Screen('Flip',win);
+
     end
+   Screen('Flip',win);
+   WaitSecs(1);
     
     
 end
-
 
 
 stimchanList=[1,2];%%%change the stimulus channels to 
