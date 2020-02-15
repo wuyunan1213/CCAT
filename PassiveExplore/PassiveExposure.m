@@ -130,7 +130,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for j=1:baselineTN %change the trial number
+%baselineTN
+for j=1:5 %change the trial number
     %Flip Screen to be Beer Pier blocks
     respToBeMade = true;
     rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
@@ -203,6 +204,10 @@ stimchanList=[1,2];%%%change the stimulus channels to
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Step Five: Play the canonical and reverse blocks with the MMN block at the
 %end
+silence = zeros(fs,1);
+ISI_length = 700; %%%ISI should not be jittered!!
+ISI = int16(ISI_length/1000*44100);
+
 curText = ['<color=ffffff>Now we are ready to start the second part.\n'...
     'You will be doing the same thing in this part.\n\n'...
     'There will be XXXX blocks. At the end of each block, you will watch a short video.\n'...
@@ -218,10 +223,10 @@ trig_len = 441; %10ms of trigger length
 
 presentation = [];
 for i=1:blockNumber
-    A=randperm(12);
-    B=randperm(12);
-    C=randperm(12);
-    presentation=[presentation;A(1:12),B(1:12),C(1:12)];
+    A=randperm(10);
+    B=randperm(10);
+    C=randperm(10);
+    presentation=[presentation;A(1:10),B(1:10),C(1:10)];
 end
 
 for i=1:blockNumber %%change the block number
@@ -248,28 +253,32 @@ for i=1:blockNumber %%change the block number
 %           instead of presenting instructions, we want to play a movie
 %           here. 
 
+        if i <= blockNumber/2 %%present the canonical blocks first
+            stim=BPCWmaster_can.Stimuli(presentation(i,j),1:8);
+        else
+            stim=BPCWmaster_rev.Stimuli(presentation(i,j),1:8);
+            stream = [stim{8}; ISI];
+        end
         %%%concatenate all 3 channels of signals
-        signalthree=[stim{8},stim{8}];
         
-        pageno = playrec('play',signalthree,stimchanList);
-        playrec('block',pageno);
-%         PsychPortAudio('FillBuffer', pamaster, signalthree);
-%         t1 = PsychPortAudio('Start', pamaster, 1, 0, 1);
-%         PsychPortAudio('Stop', pamaster , 1, 1);
-
-
-            % Select screen for display of movie:
-        moviename = ['C:\Users\Lab User\Desktop\Experiments\Charles\EEG\crunch\clip', int2str(i),'.mp4' ];
-        screenid = max(Screen('Screens'));
-        % Open 'windowrect' sized window on screen, with black [0] background color:
-        screen=max(Screen('Screens'));
-        % Open movie file:
-        movie = Screen('OpenMovie', win, moviename, [], [], 2);
-
-        % Start playback engine:
-        Screen('PlayMovie', movie, 1);
-        rect1=SetRect([10,10, 800,800]);
+    signal = [silence; stream; silence];
+    signalthree=[signal'; signal'];
         
+    
+        % Select screen for display of movie:
+    moviename = ['C:\Users\Lab User\Desktop\Experiments\Charles\EEG\crunch\clip', int2str(i),'.mp4' ];
+    screenid = max(Screen('Screens'));
+    % Open 'windowrect' sized window on screen, with black [0] background color:
+    screen=max(Screen('Screens'));
+    % Open movie file:
+    movie = Screen('OpenMovie', win, moviename, [], [], 2);
+
+    % Start playback engine:
+    Screen('PlayMovie', movie, 1);
+    
+    PsychPortAudio('FillBuffer', pamaster, signalthree);
+    PsychPortAudio('Start', pamaster, 1, 0, 1);
+    
     while(1)
         % Wait for next movie frame, retrieve texture handle to it
         tex = Screen('GetMovieImage', win, movie);
@@ -281,7 +290,7 @@ for i=1:blockNumber %%change the block number
         end
 
         % Draw the new texture immediately to screen:
-        Screen('DrawTexture', win, tex, [], rect1);
+        Screen('DrawTexture', win, tex, [], debugRect);
 
         % Update display:
         Screen('Flip', win);
@@ -290,15 +299,18 @@ for i=1:blockNumber %%change the block number
         Screen('Close', tex);
     end
 
-    while playrec('isFinished',pageno) == 0
-    end
+    PsychPortAudio('Stop', pamaster, 1, 1);
     %PsychPortAudio('Stop', pamaster , 1, 1);
-
 
     % Stop playback:
     Screen('PlayMovie', movie, 0);
     % Close movie:
     Screen('CloseMovie', movie);
+    
+        
+%         PsychPortAudio('FillBuffer', pamaster, signalthree);
+%         t1 = PsychPortAudio('Start', pamaster, 1, 0, 1);
+%         PsychPortAudio('Stop', pamaster , 1, 1);
     end
 
     
