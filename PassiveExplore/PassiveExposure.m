@@ -156,39 +156,40 @@ for j=1:baselineTN %change the trial number
     while respToBeMade == true
         [keyIsDown, secs, keyCode] = KbCheck;
         if keyCode(z) %selected 'beer'
-            BPCWresp{j,8}='beer'; 
+                BPCWresp{j,8}='beer'; 
 
-            %Flip Screen to be Beer Pier blocks
-            [scrX,scrY] = RectCenter(winRect);
-            rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
-            rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
-            Screen('FillRect', win, [255 255 204], rect1);
-            Screen('FillRect', win, [135 206 250], rect2);
-            curText='Beer                                                     Pier';
-            DrawFormattedText(win,curText,'center','center',[0 0 0]);
-            Screen('Flip',win);
-            
-            respToBeMade = false;
-            WaitSecs(1);
+                %Flip Screen to be Beer Pier blocks
+                [scrX,scrY] = RectCenter(winRect);
+                rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
+                rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
+                Screen('FillRect', win, [255 255 204], rect1);
+                Screen('FillRect', win, [135 206 250], rect2);
+                curText='Beer                                                     Pier';
+                DrawFormattedText(win,curText,'center','center',[0 0 0]);
+
+                respToBeMade = false;
+                WaitSecs(1);
 
         elseif keyCode(m) %clicked "pier"
-            BPCWresp{j,8}='pier';
-            %LOOK LATER
+                BPCWresp{j,8}='pier';
+                %LOOK LATER
 
-            %Flip Screen to be Beer Pier blocks
-            [scrX,scrY] = RectCenter(winRect);
-            rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
-            rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
-            Screen('FillRect', win, [135 206 250], rect1);
-            Screen('FillRect', win, [255 255 204], rect2);
-            curText='Beer                                                     Pier';
-            DrawFormattedText(win,curText,'center','center',[0 0 0]);
-            Screen('Flip',win);
-    
-            respToBeMade = false;
-            WaitSecs(1);
+                %Flip Screen to be Beer Pier blocks
+                [scrX,scrY] = RectCenter(winRect);
+                rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
+                rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
+                Screen('FillRect', win, [135 206 250], rect1);
+                Screen('FillRect', win, [255 255 204], rect2);
+                curText='Beer                                                     Pier';
+                DrawFormattedText(win,curText,'center','center',[0 0 0]);
+
+                respToBeMade = false;
+                WaitSecs(1);
         end
+       Screen('Flip',win);
     end
+    
+    
 end
 
 
@@ -350,38 +351,38 @@ for i=1:blockNumber %%change the block number
         [clicks,x,y,whichButton]=GetClicks(win,0);
         while ~((((x>=scrX-575)&&(x<=scrX-75))&&((y>=scrY-250)&&(y<=scrY+250)))||(((x>=scrX+75)&&(x<=scrX+575))&&((y>=scrY-250)&&(y<=scrY+250))))
             [clicks,x,y,whichButton]=GetClicks(win,0);
+            if (((x>=scrX-575)&&(x<=scrX-75))&&((y>=scrY-250)&&(y<=scrY+250))) %clicked "beer"
+                BPCWresp{repIndex,8}='beer'; 
+
+                %Flip Screen to be Beer Pier blocks
+                [scrX,scrY] = RectCenter(winRect);
+                rect1 = CenterRectOnPoint([0 0 500 500],scrX-325,scrY);
+                rect2 = CenterRectOnPoint([0 0 500 500],scrX+325,scrY);
+                Screen('FillRect', win, [255 255 204], rect1);
+                Screen('FillRect', win, [135 206 250], rect2);
+                curText='Beer                                                     Pier';
+                DrawFormattedText(win,curText,'center','center',[0 0 0]);
+                Screen('Flip',win);
+
+                WaitSecs(1);
+
+            else %clicked "pier"
+                BPCWresp{repIndex,8}='pier';
+
+                %Flip Screen to be Beer Pier blocks
+                [scrX,scrY] = RectCenter(winRect);
+                rect1 = CenterRectOnPoint([0 0 500 500],scrX-325,scrY);
+                rect2 = CenterRectOnPoint([0 0 500 500],scrX+325,scrY);
+                Screen('FillRect', win, [135 206 250], rect1);
+                Screen('FillRect', win, [255 255 204], rect2);
+                curText='Beer                                                     Pier';
+                DrawFormattedText(win,curText,'center','center',[0 0 0]);
+                Screen('Flip',win);
+
+                WaitSecs(1);
+            end
         end
         %record user response (in correct location)
-        if (((x>=scrX-575)&&(x<=scrX-75))&&((y>=scrY-250)&&(y<=scrY+250))) %clicked "beer"
-            BPCWresp{repIndex,8}='beer'; 
-
-            %Flip Screen to be Beer Pier blocks
-            [scrX,scrY] = RectCenter(winRect);
-            rect1 = CenterRectOnPoint([0 0 500 500],scrX-325,scrY);
-            rect2 = CenterRectOnPoint([0 0 500 500],scrX+325,scrY);
-            Screen('FillRect', win, [255 255 204], rect1);
-            Screen('FillRect', win, [135 206 250], rect2);
-            curText='Beer                                                     Pier';
-            DrawFormattedText(win,curText,'center','center',[0 0 0]);
-            Screen('Flip',win);
-
-            WaitSecs(1);
-
-        else %clicked "pier"
-            BPCWresp{repIndex,8}='pier';
-
-            %Flip Screen to be Beer Pier blocks
-            [scrX,scrY] = RectCenter(winRect);
-            rect1 = CenterRectOnPoint([0 0 500 500],scrX-325,scrY);
-            rect2 = CenterRectOnPoint([0 0 500 500],scrX+325,scrY);
-            Screen('FillRect', win, [135 206 250], rect1);
-            Screen('FillRect', win, [255 255 204], rect2);
-            curText='Beer                                                     Pier';
-            DrawFormattedText(win,curText,'center','center',[0 0 0]);
-            Screen('Flip',win);
-
-            WaitSecs(1);
-        end
     
 %     PsychPortAudio('FillBuffer', pamaster, signalthree);
 %     t1 = PsychPortAudio('Start', pamaster, 1, 0, 0);
