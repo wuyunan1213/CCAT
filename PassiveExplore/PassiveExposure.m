@@ -347,7 +347,7 @@ test_pres = randperm(4);
         stim=BPCWmaster_test.Stimuli{test_pres(k),1:8};
 
         BPCWresp(repIndex,1:7)=stim(1:7);
-
+        signal = stim{8};
         signalfour=[signal';signal'];
 
         PsychPortAudio('FillBuffer', pamaster, signalfour);
@@ -357,7 +357,7 @@ test_pres = randperm(4);
         while respToBeMade == true
         [keyIsDown, secs, keyCode] = KbCheck;
         if keyCode(z) %selected 'beer'
-                BPCWresp{j,8}='beer'; 
+                BPCWresp{repIndex,8}='beer'; 
 
                 %Flip Screen to be Beer Pier blocks
                 [scrX,scrY] = RectCenter(winRect);
@@ -371,7 +371,7 @@ test_pres = randperm(4);
                 respToBeMade = false;
 
         elseif keyCode(m) %clicked "pier"
-                BPCWresp{j,8}='pier';
+                BPCWresp{repIndex,8}='pier';
                 %LOOK LATER
 
                 %Flip Screen to be Beer Pier blocks
@@ -390,6 +390,7 @@ test_pres = randperm(4);
        Screen('Flip',win);
        WaitSecs(1);
     end
+end
         %record user response (in correct location)
     
 %     PsychPortAudio('FillBuffer', pamaster, signalthree);
