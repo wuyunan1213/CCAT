@@ -210,16 +210,16 @@ ISI = int16(ISI_length/1000*44100);
 
 curText = ['<color=ffffff>Now we are ready to start the second part.\n'...
     'You will be doing the same thing in this part.\n\n'...
-    'There will be XXXX blocks. At the end of each block, you will watch a short video.\n'...
+    'There will be 20 blocks. At the beginning of each block, you will watch a short video.\n'...
     'The video will have some embedded speech sounds. You can ignore those sounds and focus on the video.\n\n'...
-    '\n<b>Please wait until the experimenter is ready.<b>'];
-DrawFormattedText2(curText,'win',win,'sx',400,'sy',400,'xalign','left','yalign','top','wrapat',59);
+    'Then we will ask you to identify some speech sounds.\n\n'...
+    'If you hear BEER, press Z. If you hear PIER, press M. If you are unsure, take your best guess\n\n'...
+    '\n<b>Press space when you are ready.<b>'];
+DrawFormattedText2(curText,'win',win,'sx',eX/10,'sy',eY/8,'xalign','left','yalign','top','wrapat',200);
 %DrawFormattedText(win, curText, 'center', 'center', white);
 Screen('Flip',win);
 oldtype = ShowCursor(0);
 KbWait([],2);
-
-trig_len = 441; %10ms of trigger length
 
 presentation = [];
 for i=1:blockNumber
@@ -232,9 +232,7 @@ end
 for i=1:blockNumber %%change the block number
     curText = [sprintf('Beginning block %d of %d.',i,blockNumber)...
         '\nNow you can take a break and stretch a little. \n'...
-        'But Please try to minimize your movement during the block,'...
-        'especially during the movie\n'...
-        '\n\nPress "spacebar" to continue.'];
+        '\n\nPress "spacebar" when you are ready to continue.'];
     DrawFormattedText(win,curText,'center','center',[255 255 255]);
     Screen('Flip',win);
     KbWait([],2);
@@ -259,8 +257,8 @@ for i=1:blockNumber %%change the block number
             stim=BPCWmaster_rev.Stimuli(presentation(i,j),1:8);
             stream = [stim{8}; ISI];
         end
+    end
         %%%concatenate all 3 channels of signals
-        
     signal = [silence; stream; silence];
     signalthree=[signal'; signal'];
         
@@ -311,7 +309,8 @@ for i=1:blockNumber %%change the block number
 %         PsychPortAudio('FillBuffer', pamaster, signalthree);
 %         t1 = PsychPortAudio('Start', pamaster, 1, 0, 1);
 %         PsychPortAudio('Stop', pamaster , 1, 1);
-    end
+end
+  
 
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -324,73 +323,73 @@ for i=1:blockNumber %%change the block number
 
 %%%%%%%%%UNDONE!!!! 
     %%%first create 1s silent period
-    silence = zeros(fs,1);
     %%%Then create our counterbalancing conditions such that in odd blocks,
     %%%we have b as standard, p as deviant and in even blocks, we have the
     %%%opposite
     %%%we do this by loading different scripts depending on the block
     %%%number
     %%Now counterbalance the standard/deviant stimuli
-    load('BPmaster_test_v1.mat')
-        repIndex = baselineTN+(i-1)*trialNumber+j;
-    if i <= blockNumber/2 %%present the canonical blocks first
-        stim=BPCWmaster_can.Stimuli(presentation(i,j),1:8);
+    load('BPmaster_test.mat')
+    nTest = size(BPCWmaster_test.Stimuli,1);
+test_pres = randperm(4);
 
-        BPCWresp(repIndex,1:7)=stim(1:7);%%%fill the stim info
+    for k = 1:nTest
+        repIndex = baselineTN+(i-1)*nTest+k;
+        respToBeMade = true;
+        rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
+        rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2);   
+        Screen('FillRect', win, [135 206 250], rect1);
+        Screen('FillRect', win, [135 206 250], rect2);
+        curText='Beer                                                     Pier';
+        DrawFormattedText(win,curText,'center','center',[0 0 0]);
+        Screen('Flip',win);
 
-    else %%%%then the reverse blocks
-        BI = 10;
-        stim=BPCWmaster_rev.Stimuli(presentation(i,j),1:8);
-        trig = zeros(length(stim{8}),1);
-        %%4 different trigger conditions
+        stim=BPCWmaster_test.Stimuli{test_pres(k),1:8};
 
-        BPCWresp(repIndex,1:7)=stim(1:7);%%%fill the stim info
+        BPCWresp(repIndex,1:7)=stim(1:7);
 
-    end
-    signal = [silence; build; silence];
-    trigger_MMN = [silence; trigger_build; silence];
-    
+        signalfour=[signal';signal'];
 
-    signalthree=[scale*signal,scale*signal,trigger_MMN];
-    
-    pageno = playrec('play',signalthree,stimchanList);
-    
-
-            %get user response
-        [clicks,x,y,whichButton]=GetClicks(win,0);
-        while ~((((x>=scrX-575)&&(x<=scrX-75))&&((y>=scrY-250)&&(y<=scrY+250)))||(((x>=scrX+75)&&(x<=scrX+575))&&((y>=scrY-250)&&(y<=scrY+250))))
-            [clicks,x,y,whichButton]=GetClicks(win,0);
-            if (((x>=scrX-575)&&(x<=scrX-75))&&((y>=scrY-250)&&(y<=scrY+250))) %clicked "beer"
-                BPCWresp{repIndex,8}='beer'; 
+        PsychPortAudio('FillBuffer', pamaster, signalfour);
+        PsychPortAudio('Start', pamaster, 1, 0, 1);
+        PsychPortAudio('Stop', pamaster, 1, 1);
+        
+        while respToBeMade == true
+        [keyIsDown, secs, keyCode] = KbCheck;
+        if keyCode(z) %selected 'beer'
+                BPCWresp{j,8}='beer'; 
 
                 %Flip Screen to be Beer Pier blocks
                 [scrX,scrY] = RectCenter(winRect);
-                rect1 = CenterRectOnPoint([0 0 500 500],scrX-325,scrY);
-                rect2 = CenterRectOnPoint([0 0 500 500],scrX+325,scrY);
+                rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
+                rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
                 Screen('FillRect', win, [255 255 204], rect1);
                 Screen('FillRect', win, [135 206 250], rect2);
                 curText='Beer                                                     Pier';
                 DrawFormattedText(win,curText,'center','center',[0 0 0]);
-                Screen('Flip',win);
 
-                WaitSecs(1);
+                respToBeMade = false;
 
-            else %clicked "pier"
-                BPCWresp{repIndex,8}='pier';
+        elseif keyCode(m) %clicked "pier"
+                BPCWresp{j,8}='pier';
+                %LOOK LATER
 
                 %Flip Screen to be Beer Pier blocks
                 [scrX,scrY] = RectCenter(winRect);
-                rect1 = CenterRectOnPoint([0 0 500 500],scrX-325,scrY);
-                rect2 = CenterRectOnPoint([0 0 500 500],scrX+325,scrY);
+                rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
+                rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
                 Screen('FillRect', win, [135 206 250], rect1);
                 Screen('FillRect', win, [255 255 204], rect2);
                 curText='Beer                                                     Pier';
                 DrawFormattedText(win,curText,'center','center',[0 0 0]);
-                Screen('Flip',win);
 
-                WaitSecs(1);
+                respToBeMade = false;
             end
+
         end
+       Screen('Flip',win);
+       WaitSecs(1);
+    end
         %record user response (in correct location)
     
 %     PsychPortAudio('FillBuffer', pamaster, signalthree);
