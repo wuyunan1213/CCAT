@@ -20,6 +20,10 @@ cd('C:\Users\Lab User\Desktop\Experiments\Charles\PassiveExposure')
 
 fprintf('Beginning BP passive explore.\n\n')
 
+fprintf('\nPlease follow the prompt in the pop-up window.\n\n')
+
+subj = char(inputdlg('Please enter the subject ID number:','Subject ID'));
+
 % Get the screen numbers. This gives us a number for each of the screens
 % attached to our computer.
 screens = Screen('Screens');
@@ -46,25 +50,31 @@ grey = white / 2;
 
 Screen('Preference', 'SyncTestSettings', 0.001);
 % Open an on screen window using PsychImaging and color it grey.
+% 
 
-oX=0;
-oY=0;
-eX=600;
-eY=600;
-
-debugRect = [oX, oY, eX, eY];
-[win, winRect] = Screen('OpenWindow', screenNumber, grey, debugRect);
+[win, winRect] = Screen('OpenWindow', screenNumber, grey);
 [screenXpixels, screenYpixels] = Screen('WindowSize', win);
 [scrX,scrY] = RectCenter(winRect);
 
+oX=0;
+oY=0;
+eX=1920;
+eY=1080;
+
 dI = 6; %%list the audio device to be used
 repNumber = 5; %%the baseline block should be repeated 4 times
-blockNumber = 2;%change to 20 eventually number of exposure+test blocks in the actual experiment, 
+blockNumber = 20;%change to 20 eventually number of exposure+test blocks in the actual experiment, 
                 %%which is the canonical/reverse part. 
 trialNumber = 30;%%Number of trials within an exposure block, should always be 30
                  %%%for this experiment
 
 fs = 44100;
+fprintf('Loading sound files. This may take a moment...')
+load('BPmaster_baseline.mat');
+load('BPmaster_canonical.mat');
+load('BPmaster_reverse.mat');
+load('BPresp.mat');
+fprintf('Done.\n')
 % Step One: Connect to and properly initialize RME sound card
 devices = PsychPortAudio('GetDevices');
 pamaster = PsychPortAudio('Open',devices(dI).DeviceIndex,1,1,fs,2);
@@ -77,16 +87,7 @@ pamaster = PsychPortAudio('Open',devices(dI).DeviceIndex,1,1,fs,2);
 
 % Step Two: Yippee, we're online. Now, we establish the subject's ID number
 % and load in Master List and Response templates.
-fprintf('\nPlease follow the prompt in the pop-up window.\n\n')
 
-subj = char(inputdlg('Please enter the subject ID number:','Subject ID'));
-
-fprintf('Loading sound files. This may take a moment...')
-load('BPmaster_baseline.mat');
-load('BPmaster_canonical.mat');
-load('BPmaster_reverse.mat');
-load('BPresp.mat');
-fprintf('Done.\n')
 %%column names of the stimfiles: 
 %%1.sound file 2. VOT value 3. F0 value 4. VOT level 5. F0 level. 6. block
 %%7.stimulus type 8. audio
@@ -110,7 +111,7 @@ curText = ['<color=ffffff>In this experiment, you will hear either the word '...
     'There is only one block in this part \n\n'...
     '<b>Press "spacebar" to begin.<b>'];
 %curText = 'In this experiment, you will hear either the word "BEER" or the word "PIER" \n\n\n\n If you hear "BEER", click the box labelled "BEER". \n\n If you hear "PIER" click the box labelled "PIER". \n\n If you are unsure, make your best guess.\n\n\n\n Every once in a while, you can take a break \n\n and we will show you a short cartoon with the same sounds in the background. \n\n You just need to watch the cartoon and relax and ignore the sounds. \n\n\n\n Press SPACEBAR to begin';
-DrawFormattedText2(curText,'win',win,'sx',eX/10,'sy',eY/8,'xalign','left','yalign','top','wrapat',200);
+DrawFormattedText2(curText,'win',win,'sx',eX/3,'sy',eY/4,'xalign','left','yalign','top','wrapat',59);
 %DrawFormattedText(win, curText, 'center', 'center', white);
 Screen('Flip',win);
 oldtype = ShowCursor(0);
@@ -134,11 +135,11 @@ end
 for j=1:baselineTN %change the trial number
     %Flip Screen to be Beer Pier blocks
     respToBeMade = true;
-    rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
-    rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2);   
+    rect1 = CenterRectOnPoint([0 0 500 500],scrX-eX/6,eY/2);
+    rect2 = CenterRectOnPoint([0 0 500 500],scrX+eX/6,eY/2);   
     Screen('FillRect', win, [135 206 250], rect1);
     Screen('FillRect', win, [135 206 250], rect2);
-    curText='Beer                                                     Pier';
+    curText='Beer                                                                       Pier';
     DrawFormattedText(win,curText,'center','center',[0 0 0]);
     Screen('Flip',win);
 
@@ -160,12 +161,11 @@ for j=1:baselineTN %change the trial number
                 BPCWresp{j,8}='beer'; 
 
                 %Flip Screen to be Beer Pier blocks
-                [scrX,scrY] = RectCenter(winRect);
-                rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
-                rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
+                rect1 = CenterRectOnPoint([0 0 500 500],scrX-eX/6,eY/2);
+                rect2 = CenterRectOnPoint([0 0 500 500],scrX+eX/6,eY/2);   
                 Screen('FillRect', win, [255 255 204], rect1);
                 Screen('FillRect', win, [135 206 250], rect2);
-                curText='Beer                                                     Pier';
+                curText='Beer                                                                       Pier';
                 DrawFormattedText(win,curText,'center','center',[0 0 0]);
 
                 respToBeMade = false;
@@ -175,12 +175,11 @@ for j=1:baselineTN %change the trial number
                 %LOOK LATER
 
                 %Flip Screen to be Beer Pier blocks
-                [scrX,scrY] = RectCenter(winRect);
-                rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
-                rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
+                rect1 = CenterRectOnPoint([0 0 500 500],scrX-eX/6,eY/2);
+                rect2 = CenterRectOnPoint([0 0 500 500],scrX+eX/6,eY/2);   
                 Screen('FillRect', win, [135 206 250], rect1);
                 Screen('FillRect', win, [255 255 204], rect2);
-                curText='Beer                                                     Pier';
+                curText='Beer                                                                       Pier';
                 DrawFormattedText(win,curText,'center','center',[0 0 0]);
 
                 respToBeMade = false;
@@ -215,7 +214,7 @@ curText = ['<color=ffffff>Now we are ready to start the second part.\n'...
     'Then we will ask you to identify some speech sounds.\n\n'...
     'If you hear BEER, press Z. If you hear PIER, press M. If you are unsure, take your best guess\n\n'...
     '\n<b>Press space when you are ready.<b>'];
-DrawFormattedText2(curText,'win',win,'sx',eX/10,'sy',eY/8,'xalign','left','yalign','top','wrapat',200);
+DrawFormattedText2(curText,'win',win,'sx',eX/3,'sy',eY/4,'xalign','left','yalign','top','wrapat',200);
 %DrawFormattedText(win, curText, 'center', 'center', white);
 Screen('Flip',win);
 oldtype = ShowCursor(0);
@@ -290,7 +289,7 @@ for i=1:blockNumber %%change the block number
         end
 
         % Draw the new texture immediately to screen:
-        Screen('DrawTexture', win, tex, [], debugRect);
+        Screen('DrawTexture', win, tex, []);
 
         % Update display:
         Screen('Flip', win);
@@ -337,11 +336,11 @@ for i=1:blockNumber %%change the block number
     for k = 1:nTest
         repIndex = baselineTN+(i-1)*nTest+k;
         respToBeMade = true;
-        rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
-        rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2);   
+        rect1 = CenterRectOnPoint([0 0 500 500],scrX-eX/6,eY/2);
+        rect2 = CenterRectOnPoint([0 0 500 500],scrX+eX/6,eY/2);   
         Screen('FillRect', win, [135 206 250], rect1);
         Screen('FillRect', win, [135 206 250], rect2);
-        curText='Beer                                                     Pier';
+        curText='Beer                                                                       Pier';
         DrawFormattedText(win,curText,'center','center',[0 0 0]);
         Screen('Flip',win);
 
@@ -362,11 +361,11 @@ for i=1:blockNumber %%change the block number
 
                     %Flip Screen to be Beer Pier blocks
                     [scrX,scrY] = RectCenter(winRect);
-                    rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
-                    rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
+                    rect1 = CenterRectOnPoint([0 0 500 500],scrX-eX/6,eY/2);
+                    rect2 = CenterRectOnPoint([0 0 500 500],scrX+eX/6,eY/2);   
                     Screen('FillRect', win, [255 255 204], rect1);
                     Screen('FillRect', win, [135 206 250], rect2);
-                    curText='Beer                                                     Pier';
+                    curText='Beer                                                                       Pier';
                     DrawFormattedText(win,curText,'center','center',[0 0 0]);
 
                     respToBeMade = false;
@@ -377,11 +376,11 @@ for i=1:blockNumber %%change the block number
 
                     %Flip Screen to be Beer Pier blocks
                     [scrX,scrY] = RectCenter(winRect);
-                    rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
-                    rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
+                    rect1 = CenterRectOnPoint([0 0 500 500],scrX-eX/6,eY/2);
+                    rect2 = CenterRectOnPoint([0 0 500 500],scrX+eX/6,eY/2);   
                     Screen('FillRect', win, [135 206 250], rect1);
                     Screen('FillRect', win, [255 255 204], rect2);
-                    curText='Beer                                                     Pier';
+                    curText='Beer                                                                       Pier';
                     DrawFormattedText(win,curText,'center','center',[0 0 0]);
 
                     respToBeMade = false;
