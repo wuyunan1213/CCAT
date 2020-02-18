@@ -16,7 +16,7 @@ close all;
 clear all; %#ok<CLALL>
 clc;
 
-%cd('C:\Users\Lab User\Desktop\Experiments\Charles\EEG')
+cd('C:\Users\Lab User\Desktop\Experiments\Charles\PassiveExposure')
 
 fprintf('Beginning BP passive explore.\n\n')
 
@@ -57,7 +57,7 @@ debugRect = [oX, oY, eX, eY];
 [screenXpixels, screenYpixels] = Screen('WindowSize', win);
 [scrX,scrY] = RectCenter(winRect);
 
-dI = 2; %%list the audio device to be used
+dI = 6; %%list the audio device to be used
 repNumber = 5; %%the baseline block should be repeated 4 times
 blockNumber = 2;%change to 20 eventually number of exposure+test blocks in the actual experiment, 
                 %%which is the canonical/reverse part. 
@@ -116,7 +116,7 @@ Screen('Flip',win);
 oldtype = ShowCursor(0);
 KbWait([],2);
 
-baselineTN = 25*repNumber;
+baselineTN = 5%25*repNumber;
 
 presentation = [];
 for i = 1:repNumber
@@ -131,7 +131,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %baselineTN
-for j=1:5 %change the trial number
+for j=1:baselineTN %change the trial number
     %Flip Screen to be Beer Pier blocks
     respToBeMade = true;
     rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
@@ -237,6 +237,7 @@ for i=1:blockNumber %%change the block number
     Screen('Flip',win);
     KbWait([],2);
     %%%exposure block(canonical/reverse)
+    stream = [];
     for j=1:trialNumber %change the trial number
 
         %Flip Screen to be Beer Pier blocks
@@ -255,16 +256,17 @@ for i=1:blockNumber %%change the block number
             stim=BPCWmaster_can.Stimuli(presentation(i,j),1:8);
         else
             stim=BPCWmaster_rev.Stimuli(presentation(i,j),1:8);
-            stream = [stim{8}; ISI];
         end
+        stream = [stream; stim{8}; zeros(ISI,1)];
     end
         %%%concatenate all 3 channels of signals
+
     signal = [silence; stream; silence];
     signalthree=[signal'; signal'];
         
     
         % Select screen for display of movie:
-    moviename = ['C:\Users\Lab User\Desktop\Experiments\Charles\EEG\crunch\clip', int2str(i),'.mp4' ];
+    moviename = ['C:\Users\Lab User\Desktop\Experiments\Charles\PassiveExposure\crunch\clip', int2str(i),'.mp4' ];
     screenid = max(Screen('Screens'));
     % Open 'windowrect' sized window on screen, with black [0] background color:
     screen=max(Screen('Screens'));
@@ -309,7 +311,6 @@ for i=1:blockNumber %%change the block number
 %         PsychPortAudio('FillBuffer', pamaster, signalthree);
 %         t1 = PsychPortAudio('Start', pamaster, 1, 0, 1);
 %         PsychPortAudio('Stop', pamaster , 1, 1);
-end
   
 
     
@@ -331,7 +332,7 @@ end
     %%Now counterbalance the standard/deviant stimuli
     load('BPmaster_test.mat')
     nTest = size(BPCWmaster_test.Stimuli,1);
-test_pres = randperm(4);
+    test_pres = randperm(4);
 
     for k = 1:nTest
         repIndex = baselineTN+(i-1)*nTest+k;
@@ -344,7 +345,7 @@ test_pres = randperm(4);
         DrawFormattedText(win,curText,'center','center',[0 0 0]);
         Screen('Flip',win);
 
-        stim=BPCWmaster_test.Stimuli{test_pres(k),1:8};
+        stim=BPCWmaster_test.Stimuli(test_pres(k),1:8);
 
         BPCWresp(repIndex,1:7)=stim(1:7);
         signal = stim{8};
@@ -355,35 +356,35 @@ test_pres = randperm(4);
         PsychPortAudio('Stop', pamaster, 1, 1);
         
         while respToBeMade == true
-        [keyIsDown, secs, keyCode] = KbCheck;
-        if keyCode(z) %selected 'beer'
-                BPCWresp{repIndex,8}='beer'; 
+            [keyIsDown, secs, keyCode] = KbCheck;
+            if keyCode(z) %selected 'beer'
+                    BPCWresp{repIndex,8}='beer'; 
 
-                %Flip Screen to be Beer Pier blocks
-                [scrX,scrY] = RectCenter(winRect);
-                rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
-                rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
-                Screen('FillRect', win, [255 255 204], rect1);
-                Screen('FillRect', win, [135 206 250], rect2);
-                curText='Beer                                                     Pier';
-                DrawFormattedText(win,curText,'center','center',[0 0 0]);
+                    %Flip Screen to be Beer Pier blocks
+                    [scrX,scrY] = RectCenter(winRect);
+                    rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
+                    rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
+                    Screen('FillRect', win, [255 255 204], rect1);
+                    Screen('FillRect', win, [135 206 250], rect2);
+                    curText='Beer                                                     Pier';
+                    DrawFormattedText(win,curText,'center','center',[0 0 0]);
 
-                respToBeMade = false;
+                    respToBeMade = false;
 
-        elseif keyCode(m) %clicked "pier"
-                BPCWresp{repIndex,8}='pier';
-                %LOOK LATER
+            elseif keyCode(m) %clicked "pier"
+                    BPCWresp{repIndex,8}='pier';
+                    %LOOK LATER
 
-                %Flip Screen to be Beer Pier blocks
-                [scrX,scrY] = RectCenter(winRect);
-                rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
-                rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
-                Screen('FillRect', win, [135 206 250], rect1);
-                Screen('FillRect', win, [255 255 204], rect2);
-                curText='Beer                                                     Pier';
-                DrawFormattedText(win,curText,'center','center',[0 0 0]);
+                    %Flip Screen to be Beer Pier blocks
+                    [scrX,scrY] = RectCenter(winRect);
+                    rect1 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX-eX/3,eY/2);
+                    rect2 = CenterRectOnPoint([20 80 eX-eX/2 eY-eY/3],scrX+eX/3,eY/2); 
+                    Screen('FillRect', win, [135 206 250], rect1);
+                    Screen('FillRect', win, [255 255 204], rect2);
+                    curText='Beer                                                     Pier';
+                    DrawFormattedText(win,curText,'center','center',[0 0 0]);
 
-                respToBeMade = false;
+                    respToBeMade = false;
             end
 
         end
@@ -395,7 +396,7 @@ end
     
 %     PsychPortAudio('FillBuffer', pamaster, signalthree);
 %     t1 = PsychPortAudio('Start', pamaster, 1, 0, 0);
-end
+
 
 %% CLOSEOUT
 % Close PTB Screen
@@ -406,13 +407,13 @@ Screen('CloseAll');
 % statement that will warn the experimenter if an issue with the *.csv save
 % process occurs, lest it tells you everything saved properly.
 
-fnamemat = ['C:\Users\Lab User\Desktop\Experiments\Charles\EEG\Results\' subj '_BP_' datestr(datetime('now'),'yyyymmdd') '.mat'];
+fnamemat = ['C:\Users\Lab User\Desktop\Experiments\Charles\PassiveExposure\Data\' subj '_BP_' datestr(datetime('now'),'yyyymmdd') '.mat'];
 save(fnamemat,'BPCWresp')
 
 sIDcell=cell(length(BPCWresp),1);
 sIDcell(:)={subj};
 BPCWresp=cell2table([sIDcell,BPCWresp]);
-fnamecsv = ['C:\Users\Lab User\Desktop\Experiments\Charles\EEG\Results\' subj '_BP_' datestr(datetime('now'),'yyyymmdd') '.csv'];
+fnamecsv = ['C:\Users\Lab User\Desktop\Experiments\Charles\PassiveExposure\Data\' subj '_BP_' datestr(datetime('now'),'yyyymmdd') '.csv'];
 BPCWresp.Properties.VariableNames={'sID','Sound','VOT','F0','VOTlevel','F0level','Block','StimulusType','Response'};
 writetable(BPCWresp,fnamecsv);
 
